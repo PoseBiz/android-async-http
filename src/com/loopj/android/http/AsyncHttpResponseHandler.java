@@ -26,15 +26,9 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.util.EntityUtils;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-
-import com.pose.PoseApp;
-import com.pose.SignupSplashActivity;
-import com.pose.models.User;
-import com.pose.utility.GSGlobals;
 
 /**
  * Used to intercept and handle the responses from requests made using 
@@ -215,7 +209,6 @@ public class AsyncHttpResponseHandler {
         StatusLine status = response.getStatusLine();
         if(status.getStatusCode() >= 300) 
         {
-            //sendFailureMessage(new HttpResponseException(status.getStatusCode(), status.getReasonPhrase()));
             try 
             {
                 HttpEntity entity = null;
@@ -234,20 +227,19 @@ public class AsyncHttpResponseHandler {
             
             if(status.getStatusCode() == 401)
             {    			    			
-    			if (User.isAuthenticated())
-    			{
-    				User.signout(null);
-                    PoseApp.clearDB();
-        			Intent intentSendLogout = new Intent(GSGlobals.INTENT_POSE_LOGOUT);
-        			PoseApp.getContext().sendBroadcast(intentSendLogout);
-        			
-    				Intent intent = new Intent(PoseApp.getContext(), SignupSplashActivity.class);
-    				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    				PoseApp.getContext().startActivity(intent);    				    				
-    			}    			            
+//    			if (User.isAuthenticated())
+//    			{
+//    				User.signout(null);
+//                    PoseApp.clearDB();
+//        			Intent intentSendLogout = new Intent(GSGlobals.INTENT_POSE_LOGOUT);
+//        			PoseApp.getContext().sendBroadcast(intentSendLogout);
+//        			
+//    				Intent intent = new Intent(PoseApp.getContext(), SignupSplashActivity.class);
+//    				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//    				PoseApp.getContext().startActivity(intent);    				    				
+//    			}    			            
             }
-        } else 
-        {
+        } else {
             try 
             {
                 HttpEntity entity = null;
