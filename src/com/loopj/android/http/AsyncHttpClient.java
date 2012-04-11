@@ -21,6 +21,7 @@ package com.loopj.android.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +29,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -93,6 +96,7 @@ public class AsyncHttpClient {
     private static final int DEFAULT_MAX_CONNECTIONS = 10;
     private static final int DEFAULT_SOCKET_TIMEOUT = 10 * 1000;
     private static final int DEFAULT_MAX_RETRIES = 5;
+    private static final int MAX_QUEUE_SIZE = 60;
     private static final int DEFAULT_SOCKET_BUFFER_SIZE = 8192;
     private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
     private static final String ENCODING_GZIP = "gzip";
@@ -160,10 +164,27 @@ public class AsyncHttpClient {
 
         httpClient.setHttpRequestRetryHandler(new RetryHandler(DEFAULT_MAX_RETRIES));
 
-        threadPool = (ThreadPoolExecutor)Executors.newCachedThreadPool();
+        PriorityBlockingQueue<Runnable> queue=new PriorityBlockingQueue<Runnable>(MAX_QUEUE_SIZE,new DownloadThreadComparator());        
+        threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, queue);
 
         requestMap = new WeakHashMap<Context, List<WeakReference<Future<?>>>>();
         clientHeaderMap = new HashMap<String, String>();
+    }
+    
+    class DownloadThreadComparator implements Comparator<Runnable>
+    {
+        @Override
+        public int compare(Runnable arg0, Runnable arg1)
+        {
+	        if (arg0==null && arg1==null){
+	            return 0;
+	        } else if (arg0==null){
+	            return -1;
+	        } else if (arg1==null){
+	            return 1;
+	        }
+	        return ((AsyncHttpRequest)arg0).getPriority().ordinal() - ((AsyncHttpRequest)arg1).getPriority().ordinal();
+        }
     }
 
     /**
