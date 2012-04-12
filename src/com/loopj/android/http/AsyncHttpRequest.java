@@ -27,7 +27,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.protocol.HttpContext;
 
-import com.pose.utility.GSGlobals.HttpPriority;
+//import com.pose.utility.GSGlobals.HttpPriority;
 
 class AsyncHttpRequest implements Runnable {
     private final AbstractHttpClient client;
@@ -35,6 +35,7 @@ class AsyncHttpRequest implements Runnable {
     private final HttpUriRequest request;
     private final AsyncHttpResponseHandler responseHandler;
     private int executionCount;
+    public enum HttpPriority {NORMAL };
     private HttpPriority priority = HttpPriority.NORMAL;
 
     public AsyncHttpRequest(AbstractHttpClient client, HttpContext context, HttpUriRequest request, AsyncHttpResponseHandler responseHandler) {
